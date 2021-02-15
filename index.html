@@ -1,1 +1,178 @@
-hello
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+  </head>
+  
+  <body>
+    <h2 style="margin-left:0px;">图解 Git</h2>
+    <h3 style="margin-left:0px;">&nbsp;</h3>
+    <h2 style="margin-left:0px;">基本用法</h2>
+    <figure class="image">
+      <img src="api/images/ldi1BASLUosa/1557394755-3986-basic-usage.svg-.png">
+    </figure>
+    <p style="margin-left:0px;">上面的四条命令在工作目录、暂存目录(也叫做索引)和仓库之间复制文件。</p>
+    <ul>
+      <li><code>git add&nbsp;<i>files</i></code>&nbsp;把当前文件放入暂存区域。</li>
+      <li><code>git commit</code>&nbsp;给暂存区域生成快照并提交。</li>
+      <li><code>git reset --&nbsp;<i>files</i></code>&nbsp;用来撤销最后一次<code>git <s>add </s></code>
+        <span
+        style="color:hsl(0, 75%, 60%);"><code>commit</code>
+          </span><code>&nbsp;<i>files</i></code>，你也可以用<code>git reset</code>&nbsp;撤销所有暂存区域文件。</li>
+      <li><code>git checkout --&nbsp;<i>files</i></code>&nbsp;把文件从暂存区域复制到工作目录，用来丢弃本地修改。</li>
+    </ul>
+    <p style="margin-left:0px;">你可以用&nbsp;<code>git reset -p</code>,&nbsp;<code>git checkout -p</code>,
+      or&nbsp;<code>git add -p</code>进入交互模式。</p>
+    <p style="margin-left:0px;">也可以跳过暂存区域直接从仓库取出文件或者直接提交代码。</p>
+    <figure class="image">
+      <img src="api/images/MuZklVA56Ug1/1557394755-5406-basic-usage-2.svg-.png">
+    </figure>
+    <ul>
+      <li><code>git commit -a&nbsp;</code>相当于运行&nbsp;git add&nbsp;把所有当前目录下的文件加入暂存区域再运行。git
+        commit.</li>
+      <li><code>git commit&nbsp;<i>files</i></code>&nbsp;进行一次包含最后一次提交加上工作目录中文件快照的提交。并且文件被添加到暂存区域。</li>
+      <li><code>git checkout HEAD --&nbsp;<i>files</i></code>&nbsp;回滚到复制最后一次提交。</li>
+    </ul>
+    <h2 style="margin-left:0px;">约定</h2>
+    <p style="margin-left:0px;">后文中以下面的形式使用图片。</p>
+    <figure class="image">
+      <img src="api/images/N2fG2KTy1lHd/1557394755-9088-conventions.svg-.png">
+    </figure>
+    <p style="margin-left:0px;">绿色的5位字符表示提交的ID，分别指向父节点。分支用橘色显示，分别指向特定的提交。当前分支由附在其上的<i>HEAD</i>标识。 这张图片里显示最后5次提交，<i>ed489</i>是最新提交。&nbsp;<i>master</i>分支指向此次提交，另一个<i>maint</i>分支指向祖父提交节点。</p>
+    <h2
+    style="margin-left:0px;">命令详解</h2>
+      <h3 style="margin-left:0px;"><strong>Diff</strong></h3>
+      <p style="margin-left:0px;">有许多种方法查看两次提交之间的变动。下面是一些示例。</p>
+      <figure class="image">
+        <img src="api/images/DJWazrPRFQKz/1557394756-8361-diff.svg-.png">
+      </figure>
+      <h3 style="margin-left:0px;"><strong>Commit</strong></h3>
+      <p style="margin-left:0px;">提交时，git用暂存区域的文件创建一个新的提交，并把此时的节点设为父节点。然后把当前分支指向新的提交节点。下图中，当前分支是<i>master</i>。
+        在运行命令之前，<i>master</i>指向<i>ed489</i>，提交后，<i>master</i>指向新的节点<i>f0cec</i>并以<i>ed489</i>作为父节点。</p>
+      <figure
+      class="image">
+        <img src="api/images/ZmCykJZRjyFj/1557394758-7356-commit-master.svg-.png">
+        </figure>
+        <p style="margin-left:0px;">即便当前分支是某次提交的祖父节点，git会同样操作。下图中，在<i>master</i>分支的祖父节点<i>maint</i>分支进行一次提交，生成了<i>1800b</i>。
+          这样，<i>maint</i>分支就不再是<i>master</i>分支的祖父节点。此时合并(或者衍合) 是必须的。</p>
+        <figure class="image">
+          <img src="api/images/Qq0bf9Wql1ZA/1557394758-4847-commit-maint.svg-.png">
+        </figure>
+        <p style="margin-left:0px;">如果想更改一次提交，使用&nbsp;<code>git commit --amend</code>。git会使用与当前提交相同的父节点进行一次新提交，旧的提交会被取消。</p>
+        <figure
+        class="image">
+          <img src="api/images/zSZMCGMkrFjE/1557394758-1429-commit-amend.svg-.png">
+          </figure>
+          <p style="margin-left:0px;">另一个例子是分离HEAD提交,后文讲。</p>
+          <h3 style="margin-left:0px;"><strong>Checkout</strong></h3>
+          <p style="margin-left:0px;">checkout命令用于从历史提交（或者暂存区域）中拷贝文件到工作目录，也可用于切换分支。</p>
+          <p style="margin-left:0px;">当给定某个文件名（或者打开-p选项，或者文件名和-p选项同时打开）时，git会从指定的提交中拷贝文件到暂存区域和工作目录。比如，<code>git checkout HEAD~ foo.c</code>会将提交节点<i>HEAD~</i>(即当前提交节点的父节点)中的<code>foo.c</code>复制到工作目录并且加到暂存区域中。（如果命令中没有指定提交节点，则会从暂存区域中拷贝内容。）注意当前分支不会发生变化。</p>
+          <figure
+          class="image">
+            <img src="api/images/aHE7bkNvQuAs/1557394762-8267-checkout-files.svg-.png">
+            </figure>
+            <p style="margin-left:0px;">当不指定文件名，而是给出一个（本地）分支时，那么<i>HEAD</i>标识会移动到那个分支（也就是说，我们"切换"到那个分支了），然后暂存区域和工作目录中的内容会和<i>HEAD</i>对应的提交节点一致。新提交节点（下图中的a47c3）中的所有文件都会被复制（到暂存区域和工作目录中）；只存在于老的提交节点（ed489）中的文件会被删除；不属于上述两者的文件会被忽略，不受影响。</p>
+            <figure
+            class="image">
+              <img src="api/images/qnxA9wvNpf7c/1557394763-1721-checkout-branch.svg-.png">
+              </figure>
+              <p style="margin-left:0px;">如果既没有指定文件名，也没有指定分支名，而是一个标签、远程分支、SHA-1值或者是像<i>master~3</i>类似的东西，就得到一个匿名分支，称作<i>detached HEAD</i>（被分离的<i>HEAD</i>标识）。这样可以很方便地在历史版本之间互相切换。比如说你想要编译1.6.6.1版本的git，你可以运行<code>git checkout v1.6.6.1</code>（这是一个标签，而非分支名），编译，安装，然后切换回另一个分支，比如说<code>git checkout master</code>。然而，当提交操作涉及到"分离的HEAD"时，其行为会略有不同，详情见在下面。</p>
+              <figure
+              class="image">
+                <img src="api/images/uoTXgsqgIiG1/1557394761-6610-checkout-detached.svg-.png">
+                </figure>
+                <h3 style="margin-left:0px;"><strong>HEAD标识处于分离状态时的提交操作</strong></h3>
+                <p style="margin-left:0px;">当<i>HEAD</i>处于分离状态（不依附于任一分支）时，提交操作可以正常进行，但是不会更新任何已命名的分支。(你可以认为这是在更新一个匿名分支。)</p>
+                <figure
+                class="image">
+                  <img src="api/images/t99gxVOjenUI/1557394763-4695-commit-detached.svg-.png">
+                  </figure>
+                  <p style="margin-left:0px;">一旦此后你切换到别的分支，比如说<i>master</i>，那么这个提交节点（可能）再也不会被引用到，然后就会被丢弃掉了。注意这个命令之后就不会有东西引用<i>2eecb</i>。</p>
+                  <figure
+                  class="image">
+                    <img src="api/images/Fg0gWkkEWEqK/1557394764-3676-checkout-after-detached.svg-.png">
+                    </figure>
+                    <p style="margin-left:0px;">但是，如果你想保存这个状态，可以用命令<code>git checkout -b&nbsp;<i>name</i></code>来创建一个新的分支。</p>
+                    <figure
+                    class="image">
+                      <img src="api/images/LND4Ef7uGLae/1557394764-5711-checkout-b-detached.svg-.png">
+                      </figure>
+                      <h3 style="margin-left:0px;"><strong>Reset</strong></h3>
+                      <p style="margin-left:0px;">reset 命令把当前分支指向另一个位置，并且有选择的变动工作目录和索引。也用来在从历史仓库中复制文件到索引，而不动工作目录。</p>
+                      <p
+                      style="margin-left:0px;">如果不给选项，那么当前分支指向到那个提交。如果用<code>--hard</code>选项，那么工作目录也更新，如果用<code>--soft</code>选项，那么都不变。</p>
+                        <figure
+                        class="image">
+                          <img src="api/images/ogu8qYJs5Hua/1557394765-1511-reset-commit.svg-.png">
+                          </figure>
+                          <p style="margin-left:0px;">&nbsp;</p>
+                          <p style="margin-left:0px;">如果没有给出提交点的版本号，那么默认用<i>HEAD</i>。这样，分支指向不变，但是索引会回滚到最后一次提交，如果用<code>--hard</code>选项，工作目录也同样。</p>
+                          <p
+                          style="margin-left:0px;">&nbsp;</p>
+                            <p style="margin-left:0px;">&nbsp;</p>
+                            <figure class="image">
+                              <img src="api/images/Z41PU1Y3Dnrq/1557394768-4127-reset.svg-.png">
+                            </figure>
+                            <p style="margin-left:0px;">&nbsp;</p>
+                            <p style="margin-left:0px;">&nbsp;</p>
+                            <p style="margin-left:0px;">如果给了文件名(或者&nbsp;<code>-p</code>选项), 那么工作效果和带文件名的 checkout 差不多，除了索引被更新。</p>
+                            <p
+                            style="margin-left:0px;">&nbsp;</p>
+                              <p style="margin-left:0px;">&nbsp;</p>
+                              <figure class="image">
+                                <img src="api/images/9GR1nl9v0wIP/1557394768-4895-reset-files.svg-.png">
+                              </figure>
+                              <p style="margin-left:0px;">&nbsp;</p>
+                              <h3 style="margin-left:0px;"><strong>Merge</strong></h3>
+                              <p style="margin-left:0px;">merge 命令把不同分支合并起来。合并前，索引必须和当前提交相同。如果另一个分支是当前提交的祖父节点，那么合并命令将什么也不做。 另一种情况是如果当前提交是另一个分支的祖父节点，就导致<i>fast-forward</i>合并。指向只是简单的移动，并生成一个新的提交。</p>
+                              <p
+                              style="margin-left:0px;">&nbsp;</p>
+                                <figure class="image">
+                                  <img src="api/images/UR2o4AXRPhNw/1557394767-3629-merge-ff.svg-.png">
+                                </figure>
+                                <p style="margin-left:0px;">&nbsp;</p>
+                                <p style="margin-left:0px;">&nbsp;</p>
+                                <p style="margin-left:0px;">否则就是一次真正的合并。默认把当前提交(<i>ed489</i>&nbsp;如下所示)和另一个提交(<i>33104</i>)以及他们的共同祖父节点(<i>b325c</i>)进行一次
+                                  <a
+                                  href="http://en.wikipedia.org/wiki/Three-way_merge">三方合并</a>。结果是先保存当前目录和索引，然后和父节点<i>33104</i>一起做一次新提交。</p>
+                                <p style="margin-left:0px;">&nbsp;</p>
+                                <p style="margin-left:0px;">&nbsp;</p>
+                                <figure class="image">
+                                  <img src="api/images/sfAG5V6Xz2Zq/1557394768-9049-merge.svg-.png">
+                                </figure>
+                                <p style="margin-left:0px;">&nbsp;</p>
+                                <h3 style="margin-left:0px;"><strong>Cherry Pick</strong></h3>
+                                <p style="margin-left:0px;">cherry-pick命令"复制"一个提交节点并在当前分支做一次完全一样的新提交。</p>
+                                <figure class="image">
+                                  <img src="api/images/jppnnk4Rf49i/1557394768-6031-cherry-pick.svg-.png">
+                                </figure>
+                                <h3 style="margin-left:0px;"><strong>Rebase</strong></h3>
+                                <p style="margin-left:0px;">衍合是合并命令的另一种选择。合并把两个父分支合并进行一次提交，提交历史不是线性的。衍合在当前分支上重演另一个分支的历史，提交历史是线性的。
+                                  本质上，这是线性化的自动的&nbsp;cherry-pick</p>
+                                <figure class="image">
+                                  <img src="api/images/H0vbDCEPOF6D/1557394769-8202-rebase.svg-.png">
+                                </figure>
+                                <p style="margin-left:0px;">上面的命令都在<i>topic</i>分支中进行，而不是<i>master</i>分支，在<i>master</i>分支上重演，并且把分支指向新的节点。注意旧提交没有被引用，将被回收。</p>
+                                <p
+                                style="margin-left:0px;">要限制回滚范围，使用<code>--onto</code>选项。下面的命令在<i>master</i>分支上重演当前分支从<i>169a6</i>以来的最近几个提交，即<i>2c33a</i>。</p>
+                                  <figure
+                                  class="image">
+                                    <img src="api/images/PqLBKrBhEzyp/1557394772-3197-rebase-onto.svg-.png">
+                                    </figure>
+                                    <p style="margin-left:0px;">同样有<code>git rebase --interactive</code>让你更方便的完成一些复杂操作，比如丢弃、重排、修改、合并提交。没有图片体现这些，细节看这里:
+                                      <a
+                                      href="http://www.kernel.org/pub/software/scm/git/docs/git-rebase.html#_interactive_mode"><u>git-rebase(1)</u>
+                                        </a>
+                                    </p>
+                                    <h2 style="margin-left:0px;">技术说明</h2>
+                                    <p style="margin-left:0px;">文件内容并没有真正存储在索引(<i>.git/index</i>)或者提交对象中，而是以blob的形式分别存储在数据库中(<i>.git/objects</i>)，并用SHA-1值来校验。
+                                      索引文件用识别码列出相关的blob文件以及别的数据。对于提交来说，以树(<i>tree</i>)的形式存储，同样用对于的哈希值识别。树对应着工作目录中的文件夹，树中包含的
+                                      树或者blob对象对应着相应的子目录和文件。每次提交都存储下它的上一级树的识别码。</p>
+                                    <p style="margin-left:0px;">如果用detached HEAD提交，那么最后一次提交会被the reflog for HEAD引用。但是过一段时间就失效，最终被回收，与<code>git commit --amend</code>或者<code>git rebase</code>很像。</p>
+                                    <blockquote>
+                                      <p style="margin-left:0px;"><i>原文链接：http://marklodato.github.io/visual-git-guide/index-zh-cn.html</i>
+                                      </p>
+                                    </blockquote>
+  </body>
+
+</html>
