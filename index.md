@@ -1,4 +1,0 @@
-# welcome
-
-- hi
-- good
